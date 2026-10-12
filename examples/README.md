@@ -62,6 +62,24 @@ message entry point intentionally fails.
 Use it to validate `AccountBatch`, bounded batch input, large retained state,
 and narrow state patches without replacing the complete state image.
 
+### `contract-wallet`
+
+A message-isolated owner wallet. It:
+
+- takes its owner from the deploy: the signing public key for an external
+  deploy, or the deploying account for a contract-initiated deploy;
+- lets only the owner send main value and SHELL (`currency_id = 2`) to any
+  account, with an optional FUEL reserve and an optional callback;
+- enforces optional per-window spend limits for main value and SHELL;
+- rotates ownership between keys and controlling accounts;
+- accepts deposits through `wallet.receive` and keeps value returned by
+  callbacks, including failed-delivery callbacks;
+- emits canonical `wallet.transferred` and `wallet.owner_changed` events.
+
+`cargo test --manifest-path examples/contract-wallet/Cargo.toml` runs host-side
+tests that build canonical ACMI frames and check every output encodes as ACMO.
+`examples/contract-wallet/e2e.sh` runs a two-wallet stand journey.
+
 ## Build An Example
 
 Install the SDK commands first, then build any example from the repository or
