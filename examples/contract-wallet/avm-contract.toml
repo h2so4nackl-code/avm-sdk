@@ -1,0 +1,145 @@
+[descriptor]
+execution_mode = "message_isolated"
+state_schema_id = "20b585da5f41767790ed5303e423d368dc57bd2a383632e16129cd7ac5a6a783"
+
+[abi]
+state_root_type_id = 1
+
+[[abi.types]]
+id = 1
+kind = "fixed_bytes"
+name = "wallet_state"
+len = 160
+
+[[abi.types]]
+id = 2
+kind = "fixed_bytes"
+name = "wallet_transfer_args"
+len = 128
+
+[[abi.types]]
+id = 3
+kind = "fixed_bytes"
+name = "wallet_set_limit_args"
+len = 40
+
+[[abi.types]]
+id = 4
+kind = "fixed_bytes"
+name = "wallet_set_owner_args"
+len = 72
+
+[[abi.types]]
+id = 5
+kind = "address"
+name = "wallet_event_destination"
+
+[[abi.types]]
+id = 6
+kind = "u128"
+name = "wallet_event_amount"
+
+[[abi.types]]
+id = 7
+kind = "u64"
+name = "wallet_event_count"
+
+[[abi.types]]
+id = 8
+kind = "fixed_bytes"
+name = "wallet_event_owner"
+len = 64
+
+[[abi.methods]]
+name = "wallet.transfer"
+input_type_id = 2
+
+[[abi.methods]]
+name = "wallet.set_limit"
+input_type_id = 3
+
+[[abi.methods]]
+name = "wallet.set_owner"
+input_type_id = 4
+
+[[abi.methods]]
+name = "wallet.receive"
+
+[[abi.methods]]
+name = "wallet.on_callback"
+
+[[abi.events]]
+name = "wallet.transferred"
+
+[[abi.events.fields]]
+id = 1
+type_id = 7
+name = "count"
+
+[[abi.events.fields]]
+id = 2
+type_id = 5
+name = "destination"
+
+[[abi.events.fields]]
+id = 3
+type_id = 6
+name = "shell"
+
+[[abi.events.fields]]
+id = 4
+type_id = 6
+name = "value_main"
+
+[[abi.events]]
+name = "wallet.owner_changed"
+
+[[abi.events.fields]]
+id = 1
+type_id = 8
+name = "owner"
+
+[[abi.events.fields]]
+id = 2
+type_id = 7
+name = "owner_kind"
+
+[[abi.errors]]
+status_code = 1200
+name = "unauthorized"
+message = "caller is not the wallet owner"
+
+[[abi.errors]]
+status_code = 1201
+name = "invalid_args"
+message = "method arguments are malformed or contain non-zero reserved bytes"
+
+[[abi.errors]]
+status_code = 1202
+name = "invalid_wallet_state"
+message = "wallet state is malformed or a counter is exhausted"
+
+[[abi.errors]]
+status_code = 1203
+name = "insufficient_funds"
+message = "wallet balance does not cover the requested transfer"
+
+[[abi.errors]]
+status_code = 1204
+name = "spend_limit_exceeded"
+message = "transfer exceeds the remaining spend limit of the current window"
+
+[[abi.errors]]
+status_code = 1205
+name = "unknown_method"
+message = "method is not supported for this caller"
+
+[[abi.errors]]
+status_code = 1206
+name = "event_encoding_failed"
+message = "wallet event fields could not be encoded"
+
+[[abi.errors]]
+status_code = 1207
+name = "invalid_init"
+message = "wallet initialization must come from a signed external deploy or an internal deploy"
