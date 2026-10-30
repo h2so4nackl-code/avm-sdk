@@ -1,0 +1,85 @@
+name: Public SDK 0.3.0 reporter retest
+on:
+  push:
+    branches: [verify/sdk-030-public-retest-20261030]
+permissions:
+  contents: read
+jobs:
+  original-reproductions:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned compiler
+        run: rustup toolchain install 1.93.0 --profile minimal --target wasm32-unknown-unknown
+      - name: Retest official public archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          export TMPDIR="$RUNNER_TEMP/sdk-retest-tmp"
+          mkdir -p "$TMPDIR"
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, shutil, subprocess, urllib.request
+          root = pathlib.Path(os.environ["RUNNER_TEMP"]) / "sdk-reporter-retest"
+          root.mkdir()
+          tag = "avm-dev-2662a32e7c91-sdk-93e34e16e449"
+          base = "https://github.com/gosh-sh/avm-sdk/releases/download/" + tag + "/"
+          archive = root / "avm-sdk-linux-x86_64.tar.gz"
+          checksum = root / "avm-sdk-linux-x86_64.tar.gz.sha256"
+          for path in (archive, checksum):
+              urllib.request.urlretrieve(base + path.name, path)
+          digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+          assert digest == "8735c632dfc6792fe3672eaa9e157fcf9a025a317ffaa1c4e59495531eb1383f", digest
+          def run(args, expected=0):
+              p = subprocess.run(list(map(str,args)), text=True, capture_output=True)
+              print("$", " ".join(map(str,args)), "\n", p.stdout, p.stderr, flush=True)
+              assert p.returncode == expected, p.returncode
+              return p
+          home, bindir = root / "installed", root / "bin"
+          install = ["python3", "scripts/release.py", "install", "--archive", archive,
+                     "--checksum", checksum, "--tag", tag, "--sdk-home", home, "--bin-dir", bindir]
+          run(install)
+          builder = bindir / "avm-contract-build"
+          run([builder, "--version"])
+          bundle = (home / "current").resolve()
+          command = bundle / "bin/avm-contract-build"
+          before = hashlib.sha256(command.read_bytes()).hexdigest()
+          links = {str(p): os.readlink(p) for p in [home/"current", *bindir.iterdir()]}
+          command.chmod(0o644)
+          p = run(install, expected=1)
+          assert "missing executable permissions" in p.stderr and "chmod 755" in p.stderr
+          assert hashlib.sha256(command.read_bytes()).hexdigest() == before
+          assert {k:os.readlink(k) for k in links} == links
+          assert command.stat().st_mode & 0o777 == 0o644
+          command.chmod(0o755)
+          run(install)
+          run([builder, "--version"])
+          print("ISSUE_24_PASS: permission drift rejected, bytes/links preserved, repair/retry succeeds", flush=True)
+          outputs = {}
+          for location in ("a", "b"):
+              dest = root / location
+              dest.mkdir()
+              for name in ("crates", "examples", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml", "rustfmt.toml"):
+                  source = bundle / name
+                  if source.is_dir(): shutil.copytree(source, dest/name)
+                  else: shutil.copy2(source, dest/name)
+              manifest = dest / "examples/contract-b/Cargo.toml"
+              run([builder, "build", "--manifest-path", manifest])
+              output = manifest.parent / "target/avm"
+              outputs[location] = {}
+              for name in ("contract.wasm", "contract.acab", "contract.descriptor"):
+                  data = (output/name).read_bytes()
+                  outputs[location][name] = {"sha256": hashlib.sha256(data).hexdigest(), "size":len(data)}
+                  if location == "b":
+                      assert data == (root/"a/examples/contract-b/target/avm"/name).read_bytes(), name
+          print("ISSUE_23_PASS: exact WASM, ACAB and descriptor bytes match across source roots", flush=True)
+          report = {"tag":tag,"archive_sha256":digest,"issue24":"PASS","issue23":"PASS","outputs":outputs}
+          (root/"report.json").write_text(json.dumps(report, indent=2)+"\n")
+          print(json.dumps(report, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdk-030-reporter-retest
+          path: ${{ runner.temp }}/sdk-reporter-retest/report.json
+          if-no-files-found: ignore
