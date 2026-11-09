@@ -1,0 +1,5 @@
+contract.wasm f938365231294104ff0fbddd80308b1f8362c74e0578712a78bdd59670b09911
+contract.acab 3d6af2a69e1401589aa4909de2e3aac8231f703e92c37f08e9f6a652e3ee72f0
+contract.descriptor e47be5c351074cde5b4f16be15b0af2a415b266d68127728c3de0a421f311666
+contract resources: stack=2800 bytes, arena=40783 bytes; larger production inputs can exhaust these limits and stop the call; measure the largest state and inputs or raise build.stack_bytes/build.arena_bytes explicitly
+deployment memory maximum=131072 bytes; tests must cover the largest state and inputs. Exceeding this maximum rejects growth and can fail the call; raise build.max_memory_bytes explicitly when needed
