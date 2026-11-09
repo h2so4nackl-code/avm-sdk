@@ -1,0 +1,40 @@
+{
+  "ackinacki_commit": "e2c6abe2bbea133cab98884a3b032acd9abc8406",
+  "ackinacki_repository": "gosh-sh/acki-nacki",
+  "build_receipt_sha256": "10201580511434b5e17c936d58710fa78e8d09d5549b7a68a0297eb8747836be",
+  "bundle_version": "0.5.1",
+  "cpu": "x86-64-v3",
+  "guest_version": "0.1.1",
+  "license_scope": {
+    "dependencies": "THIRD-PARTY-NOTICES.json",
+    "guest_and_sdk": "LICENSE.md",
+    "host_tools": "licenses/Acki-Nacki-Node-LICENSE.md"
+  },
+  "platform": {
+    "avm-contract-build": {
+      "minimum_glibc": "2.39",
+      "needed": [
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2"
+      ]
+    },
+    "avm-local-stand": {
+      "minimum_glibc": "2.34",
+      "needed": [
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2"
+      ]
+    }
+  },
+  "release_tag": "avm-dev-e2c6abe2bbea-sdk-961760f8cd79",
+  "runtime_lock_sha256": "31c36bb7182c35ea94abf5fb6961d4e93fb1d0a8b68d907432f700be7d2564b1",
+  "rust_toolchain": "1.98.0",
+  "schema": "gosh.avm-sdk.release.v2",
+  "sdk_commit": "961760f8cd794d1bb262b06ecac71efb148802eb",
+  "sdk_repository": "gosh-sh/avm-sdk",
+  "target": "x86_64-unknown-linux-gnu",
+  "third_party_notices_sha256": "6e33a38458eaee62c104ed89f44bd5a23d9aea8fbd06c4063bf8c9b25288af37",
+  "wasmtime_profile_sha256": "2b406af413de5e0f10d90488d025caa224bb94d29b27a65717a92c8e1a52e51a"
+}
